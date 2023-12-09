@@ -55,6 +55,9 @@ public class FlowControllerV2 {
     @Qualifier("flowRuleNacosPublisher")
     private DynamicRulePublisher<List<FlowRuleEntity>> rulePublisher;
 
+    /**
+     * 根据服务名获取规则
+     */
     @GetMapping("/rules")
     @AuthAction(PrivilegeType.READ_RULE)
     public Result<List<FlowRuleEntity>> apiQueryMachineRules(@RequestParam String app) {
@@ -63,6 +66,7 @@ public class FlowControllerV2 {
             return Result.ofFail(-1, "app can't be null or empty");
         }
         try {
+            //从nacos获取配置
             List<FlowRuleEntity> rules = ruleProvider.getRules(app);
             if (rules != null && !rules.isEmpty()) {
                 for (FlowRuleEntity entity : rules) {
@@ -124,6 +128,9 @@ public class FlowControllerV2 {
         return null;
     }
 
+    /**
+     * 保存流控规则
+     */
     @PostMapping("/rule")
     @AuthAction(value = AuthService.PrivilegeType.WRITE_RULE)
     public Result<FlowRuleEntity> apiAddFlowRule(@RequestBody FlowRuleEntity entity) {
@@ -148,9 +155,11 @@ public class FlowControllerV2 {
         return Result.ofSuccess(entity);
     }
 
+    /**
+     * 更新流控规则
+     */
     @PutMapping("/rule/{id}")
     @AuthAction(AuthService.PrivilegeType.WRITE_RULE)
-
     public Result<FlowRuleEntity> apiUpdateFlowRule(@PathVariable("id") Long id,
                                                     @RequestBody FlowRuleEntity entity) {
         if (id == null || id <= 0) {
@@ -189,6 +198,9 @@ public class FlowControllerV2 {
         return Result.ofSuccess(entity);
     }
 
+    /**
+     * 删除流控规则
+     */
     @DeleteMapping("/rule/{id}")
     @AuthAction(PrivilegeType.DELETE_RULE)
     public Result<Long> apiDeleteRule(@PathVariable("id") Long id) {

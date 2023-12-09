@@ -15,14 +15,14 @@
  */
 package com.alibaba.csp.sentinel.dashboard.repository.rule;
 
+import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.RuleEntity;
+import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
+import com.alibaba.csp.sentinel.util.AssertUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.RuleEntity;
-import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
-import com.alibaba.csp.sentinel.util.AssertUtil;
 
 /**
  * @author leyou
@@ -31,11 +31,24 @@ public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implem
 
     /**
      * {@code <machine, <id, rule>>}
+     * 规则内存库，与当防Sentinel Dashboard有心跳的所有机器所包含的所有规则实体
+     * key:机器信息，value是一个内置map，表示该机器所包含的所有规则实体
      */
-    private Map<MachineInfo, Map<Long, T>> machineRules = new ConcurrentHashMap<>(16);
-    private Map<Long, T> allRules = new ConcurrentHashMap<>(16);
+    private final Map<MachineInfo, Map<Long, T>> machineRules = new ConcurrentHashMap<>(16);
 
-    private Map<String, Map<Long, T>> appRules = new ConcurrentHashMap<>(16);
+    /**
+     * {@code <id, rule>}
+     * 规则内存库:当前SentineL Dashboard所包含的所有规则实体
+     * key:规则实体id，value: 规则实体
+     */
+    private final Map<Long, T> allRules = new ConcurrentHashMap<>(16);
+
+    /**
+     * {@code <serverName, <id, rule>>}
+     * 规则内存库:当前Sentinel Dashboard所包含的所有服务的所有规则实体
+     * key:服务名称，value是一个内置map. 表示该服务所包含的所有规则实体
+     */
+    private final Map<String, Map<Long, T>> appRules = new ConcurrentHashMap<>(16);
 
     private static final int MAX_RULES_SIZE = 10000;
 
