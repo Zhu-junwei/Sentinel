@@ -1,5 +1,14 @@
 # Sentinel 控制台
 
+> 经过zjw修改，需要配置nacos，以保证sentinel和nacos之间的配置双向同步。
+
+**存在问题：**
+> 在sentinel端修改了配置后，界面上可能不会立刻看到改变，需要刷新后看到。
+
+分析：
+> 在sentinel端修改了配置后，界面上的数据会直接查nacos，但是这是nacos的数据还未更新，导致看到的数据不是最新的。实际上不影响使用，在内存中sentinel的配置已经更改了，但是我感觉这个问题最后还是改下比较好。
+> 目前没有考虑修改，不知道社区有没有什么解决方案。
+
 ## 0. 概述
 
 Sentinel 控制台是流量控制、熔断降级规则统一配置和管理的入口，它为用户提供了机器自发现、簇点链路自发现、监控、规则配置等功能。在 Sentinel 控制台上，我们可以配置规则并实时查看流量控制效果。
@@ -18,11 +27,26 @@ mvn clean package
 
 使用如下命令启动编译后的控制台：
 
+> 源码官方配置
 ```bash
 java -Dserver.port=8080 \
 -Dcsp.sentinel.dashboard.server=localhost:8080 \
 -Dproject.name=sentinel-dashboard \
 -jar target/sentinel-dashboard.jar
+```
+
+> zjw修改后配置
+```bash
+java -Dserver.port=8888 ^
+-Dcsp.sentinel.dashboard.server=localhost:8888 ^
+-Dsentinel.dashboard.auth.username=sentinel ^
+-Dsentinel.dashboard.auth.password=sentinel ^
+-Dproject.name=sentinel-dashboard ^
+-Dnacos.addr=localhost ^
+-Dnacos.port=8848 ^
+-Dnacos.username=nacos ^
+-Dnacos.password=nacos ^
+-jar sentinel-dashboard-zjw-1.8.6.jar
 ```
 
 上述命令中我们指定几个 JVM 参数，其中 `-Dserver.port=8080` 是 Spring Boot 的参数，
